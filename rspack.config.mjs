@@ -1,34 +1,44 @@
-import path from "path";
-import { fileURLToPath } from "url";
-import HtmlWebpackPlugin from "html-webpack-plugin";
+import { defineConfig } from "@rspack/cli";
+import { rspack } from "@rspack/core";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const isRunningWebpack = !!process.env.WEBPACK;
-const isRunningRspack = !!process.env.RSPACK;
-if (!isRunningRspack && !isRunningWebpack) {
-  throw new Error("Unknown bundler");
-}
+// Target browsers, see: https://github.com/browserslist/browserslist
+const targets = ["chrome >= 87", "edge >= 88", "firefox >= 78", "safari >= 14"];
 
-/**
- * @type {import('webpack').Configuration | import('@rspack/cli').Configuration}
- */
-const config = {
-  mode: "development",
-  devtool: false,
+export default defineConfig({
   entry: {
-    main: "./src/index",
+    entry1: "./src/entry1.js",
+    entry2: "./src/entry2.js"
   },
-  plugins: [new HtmlWebpackPlugin()],
-  output: {
-    clean: true,
-    path: isRunningWebpack
-      ? path.resolve(__dirname, "webpack-dist")
-      : path.resolve(__dirname, "rspack-dist"),
-    filename: "[name].js",
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        use: [
+          {
+            loader: "builtin:swc-loader",
+            options: {
+              jsc: {
+                parser: {
+                  syntax: "ecmascript"
+                }
+              },
+              env: { targets }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  optimization: {
+    minimizer: [
+      new rspack.SwcJsMinimizerRspackPlugin(),
+      new rspack.LightningCssMinimizerRspackPlugin({
+        minimizerOptions: { targets }
+      })
+    ]
   },
   experiments: {
     css: true,
-  },
-};
-
-export default config;
+    incremental: true,
+  }
+});
