@@ -11,9 +11,8 @@ webpack is included for comparing the outputs.
 
 `pnpm run build` would both run Rspack and webpack with config `./rspack.config.mjs`
 
-- Rspack will emits output in `./rspack-dist`
-- webpack will emits output in `./webpack-dist`
+- Rspack will emits output in `./dist`
 
-`./webpack-dist` and `./rspack-dist` are purposely not added to `.gitignore`.
+`./dist` are purposely not added to `.gitignore`.
 
 It is recommended to commit these files so we quickly compare the outputs.
